@@ -1,0 +1,25 @@
+{
+  "max_open_trades": 3,
+  "stake_currency": "USD",
+  "stake_amount": 50,
+  "dry_run": true,
+  "dry_run_wallet": 1000,
+  "exchange": {
+    "name": "oanda",
+    "key": "YOUR_API_KEY_HERE",
+    "secret": "YOUR_API_SECRET_HERE",
+    "pair_whitelist": [
+      "EUR/USD",
+      "GBP/USD",
+      "USD/JPY",
+      "AUD/USD"
+    ]
+  },
+  "strategy": "ForexSwingAI2025",
+  "timeframe": "4h",
+  "telegram": {
+    "enabled": false,
+    "token": "YOUR_TELEGRAM_TOKEN_HERE",
+    "chat_id": "YOUR_CHAT_ID_HERE"
+  }
+}

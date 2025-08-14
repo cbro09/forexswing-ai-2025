@@ -1,0 +1,29 @@
+# ForexSwingAI2025 - Trading Bot .gitignore
+
+# ============= CRITICAL: NEVER COMMIT THESE =============
+# API Keys and Secrets
+*.env
+.env*
+config.json
+user_data/config*.json
+**/secrets/**
+
+# Trading Data
+user_data/data/**
+user_data/logs/**
+**/trades/**
+
+# ============= PYTHON =============
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# ============= ML MODELS =============
+*.pth
+*.pkl
+models/saved_models/*.pth
+
+# Keep examples
+!config/config.example.json
+!docs/examples/**
