@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(mkdir:*)",
+      "Bash(timeout:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(where npm)",
+      "Bash(npm --version)",
+      "Bash(npm install:*)",
+      "Bash(npx:*)",
+      "Bash(where npx)",
+      "Bash(mv:*)",
+      "Bash(rmdir:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
