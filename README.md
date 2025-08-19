@@ -1,29 +1,30 @@
-# ForexSwing AI 2025 - Final Optimized System
+# ForexSwing AI 2025 - Professional Trading System
 
-**PROFESSIONAL-GRADE AI TRADING SYSTEM** with institutional-level performance, multi-signal ensemble, and production-ready optimization.
+**CLEAN, OPTIMIZED AI TRADING SYSTEM** with advanced ML models, JAX acceleration, and Gemini AI integration.
 
 ## 🎯 System Performance
 
-- **Processing Speed**: **0.019s** (30x faster than original)
-- **Accuracy**: **55.2%** + enhanced ensemble confidence
-- **Signal Balance**: Dynamic calibrated distribution
-- **Gemini Integration**: Optimized 8s timeout framework
-- **Production Status**: **INSTITUTIONAL GRADE**
+- **Processing Speed**: Sub-second inference with JAX optimization
+- **ML Accuracy**: 55.2% base accuracy with ensemble enhancements  
+- **Signal Quality**: Multi-timeframe analysis with dynamic calibration
+- **AI Integration**: Gemini market sentiment validation
+- **Status**: **PRODUCTION READY**
 
 ## 🚀 Quick Start
 
 ```bash
-# Test final optimized system
-python final_optimized_system.py
+# Install dependencies
+pip install torch pandas numpy jax jaxlib
 
-# Test individual components
-python test_optimized_model.py          # Speed + compatibility
-python ultimate_signal_balance.py       # Signal calibration
-python optimize_gemini_performance.py   # Gemini integration
-python simple_accuracy_boost.py         # Accuracy enhancement
+# Optional: Install Gemini CLI for AI integration
+npm install -g @google/gemini-cli
 
-# Run system diagnostics
-python simple_system_test.py
+# Run the main trading bot
+python ForexBot.py
+
+# Test system components
+python tests/BotTest.py
+python tests/ModelTest.py
 ```
 
 ## 📊 Optimization Achievements
@@ -53,15 +54,28 @@ python simple_system_test.py
 ## 📁 Repository Structure
 
 ```
-forexswing-ai-2025/
-├── final_optimized_system.py          # Main optimized strategy
-├── models/                            # Trained AI models
-│   └── optimized_forex_ai.pth        # Primary LSTM (55.2% accuracy)
-├── data/market/                       # Real forex data (7 pairs, 5 years)
-├── src/integrations/                  # Gemini optimization
-├── docs/                             # Optimization documentation
-├── scripts/                          # Utility scripts
-└── archive/                          # Development history
+ForexSwing-AI/
+├── ForexBot.py                               # Main trading bot
+├── Models/                                   # Neural network models
+│   ├── ForexLSTM.py                         # Core LSTM architecture
+│   └── TrainedModels/                       # Saved model weights
+├── src/                                     # Advanced components
+│   ├── core/models/optimized_forex_lstm.py  # Enhanced LSTM model
+│   └── integrations/optimized_gemini.py     # Gemini AI integration
+├── archive/archive_cleanup/src/indicators/  # JAX indicators
+│   └── jax_advanced_indicators.py           # High-speed calculations
+├── Strategies/                              # Trading strategies
+│   └── SignalProcessor.py                   # Signal generation
+├── data/MarketData/                         # Historical forex data
+│   ├── EUR_USD_real_daily.csv              # Major currency pairs
+│   ├── GBP_USD_real_daily.csv              # Market data files
+│   └── [7 other currency pairs]            # Complete dataset
+├── tests/                                   # System validation
+│   ├── BotTest.py                          # Core functionality
+│   ├── ModelTest.py                        # ML accuracy tests
+│   └── test_integration.py                 # Full system test
+├── Tools/TrainBot.py                        # Model training
+└── Utils/PerformanceTracker.py             # Performance monitoring
 ```
 
 ## 🎯 Trading Performance
@@ -89,13 +103,13 @@ forexswing-ai-2025/
 
 ### **Live Trading Integration**
 ```python
-from final_optimized_system import FinalOptimizedStrategy
+from ForexBot import ForexBot
 
-# Initialize strategy
-strategy = FinalOptimizedStrategy()
+# Initialize bot
+bot = ForexBot()
 
 # Get trading recommendation
-recommendation = strategy.get_final_recommendation(market_data, "EUR/USD")
+recommendation = bot.get_final_recommendation(market_data, "EUR/USD")
 
 print(f"Action: {recommendation['action']}")
 print(f"Confidence: {recommendation['confidence']:.1%}")
@@ -116,30 +130,57 @@ print(f"Processing: {recommendation['processing_time']}")
 - **Signal Diversity**: Dynamic multi-signal generation
 - **Trend Integration**: Enhanced market regime detection
 
-## 🔧 Development History
+## ⚡ Key Technologies
 
-### **Optimization Phases**
-1. **Phase 1**: Speed optimization (12s → 0.37s)
-2. **Phase 2**: Signal calibration (bias elimination)
-3. **Phase 3**: Gemini integration (37s → 8s timeout)
-4. **Phase 4**: Accuracy enhancement (ensemble methods)
+### **AI & Machine Learning**
+- **Primary LSTM**: 55.2% accuracy with 397K parameters
+- **Enhanced Architecture**: Multi-layer bidirectional processing
+- **Feature Engineering**: 20+ technical indicators
+- **Ensemble Methods**: Multi-signal confidence scoring
 
-### **Key Innovations**
-- **JAX-accelerated indicators**: 65K+ calculations/second
-- **Dynamic signal calibration**: Threshold adaptation
-- **Multi-signal ensemble**: 4-model combination
-- **Trend-enhanced confidence**: Market regime awareness
+### **Performance Optimization**  
+- **JAX Acceleration**: High-speed indicator calculations (65K+ ops/sec)
+- **Caching System**: Response caching for repeated queries
+- **Batch Processing**: Optimized data handling
+- **Memory Efficiency**: Smart resource management
 
-## 🏆 Achievement Summary
+### **AI Integration**
+- **Gemini CLI**: Market sentiment analysis and validation
+- **Intelligent Prompting**: Optimized AI queries for speed
+- **Fallback Systems**: Graceful degradation when AI unavailable
+- **Response Parsing**: Structured output processing
 
-**ForexSwing AI 2025** has evolved from a development prototype to an **institutional-grade trading system**:
+## 🔧 Setup & Dependencies
 
-- **Mission**: Create AI that beats human traders ✅
-- **Performance**: Achieve professional-level speed and accuracy ✅
-- **Production**: Deploy institutional-grade system ✅
-- **Status**: **READY FOR LIVE TRADING DEPLOYMENT** 🎯
+### **Core Requirements**
+```bash
+# Python ML stack
+pip install torch pandas numpy
+
+# JAX acceleration (optional but recommended)
+pip install jax jaxlib
+
+# For Gemini AI integration
+npm install -g @google/gemini-cli
+```
+
+### **System Requirements**
+- Python 3.8+
+- 8GB+ RAM recommended
+- GPU support optional (CUDA/ROCm)
+- Node.js for Gemini CLI
+
+## 🏆 Production Ready
+
+**ForexSwing AI 2025** is a clean, optimized system ready for deployment:
+
+- ✅ **Core Functionality**: All ML models and trading logic intact
+- ✅ **Advanced Features**: JAX optimization and Gemini AI integration
+- ✅ **Market Data**: Complete historical dataset for 8 currency pairs
+- ✅ **Testing Suite**: Comprehensive validation and integration tests
+- ✅ **Clean Codebase**: Redundant files removed, core work preserved
 
 ---
 
-*Last Updated: August 18, 2025*  
-*Status: **PRODUCTION READY** - Institutional-grade optimization complete*
+*Repository cleaned and optimized: August 19, 2025*  
+*Status: **READY FOR DEPLOYMENT** - All core functionality verified* ✨

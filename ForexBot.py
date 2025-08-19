@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Final Optimized ForexSwing AI System
-All optimizations combined: Speed + Balance + Enhanced Features
+ForexBot - Professional AI Trading System
+Main entry point for automated forex trading
 """
 
 import torch
@@ -9,14 +9,14 @@ import torch.nn as nn
 import pandas as pd
 import numpy as np
 import time
-from test_optimized_model import SimpleOptimizedLSTM, create_simple_features
+from Models.ForexLSTM import SimpleOptimizedLSTM, create_simple_features
 
-class FinalOptimizedStrategy:
+class ForexBot:
     """
-    Final optimized strategy combining all improvements
+    Professional AI-powered forex trading bot
     """
     
-    def __init__(self, model_path="data/models/optimized_forex_ai.pth"):
+    def __init__(self, model_path="Models/TrainedModels/optimized_forex_ai.pth"):
         # Load LSTM model
         self.model = SimpleOptimizedLSTM(input_size=20, hidden_size=128, num_layers=3, dropout=0.4)
         self.load_model(model_path)
@@ -29,7 +29,7 @@ class FinalOptimizedStrategy:
             'confidence_boost': 1.1
         }
         
-        print("FinalOptimizedStrategy initialized")
+        print("ForexBot initialized")
         print("  - Speed: 0.025s processing (30x faster)")
         print("  - Signal balance: Calibrated thresholds")
         print("  - Enhanced features: Multi-signal analysis")
