@@ -1,0 +1,46 @@
+{
+  "account": {
+    "balance": 11490.83102263086,
+    "equity": 11490.83102263086,
+    "unrealized_pnl": 0,
+    "margin_used": 0.0,
+    "free_margin": 10000.0,
+    "total_pnl": 1491.0594096308596,
+    "total_trades": 2,
+    "winning_trades": 1,
+    "losing_trades": 1,
+    "win_rate": 50.0,
+    "max_drawdown": 25.830712271422772,
+    "open_positions": 0,
+    "return_pct": 14.908310226308604
+  },
+  "positions": [],
+  "trades": [
+    {
+      "id": "USD/JPY_SELL_1755641240",
+      "pair": "USD/JPY",
+      "side": "SELL",
+      "size": 950.0,
+      "entry_price": 156.2550048828125,
+      "exit_price": 150.47300720214844,
+      "entry_time": "2025-08-19T23:07:20.757838",
+      "exit_time": "2025-08-19T23:07:20.807033",
+      "pnl": 5492.802796630859,
+      "commission": 0.095,
+      "reason": "TAKE_PROFIT"
+    },
+    {
+      "id": "USD/JPY_SELL_1755641240",
+      "pair": "USD/JPY",
+      "side": "SELL",
+      "size": 1333.87,
+      "entry_price": 144.6909942626953,
+      "exit_price": 147.6909942626953,
+      "entry_time": "2025-08-19T23:07:20.858123",
+      "exit_time": "2025-08-19T23:07:20.909550",
+      "pnl": -4001.7433869999995,
+      "commission": 0.133387,
+      "reason": "STOP_LOSS"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "account": {
+    "balance": 9999.905,
+    "equity": 9999.905,
+    "unrealized_pnl": 0.0,
+    "margin_used": 950.0,
+    "free_margin": 9050.0,
+    "total_pnl": 0.0,
+    "total_trades": 0,
+    "winning_trades": 0,
+    "losing_trades": 0,
+    "win_rate": 0,
+    "max_drawdown": 0.0009499999999934516,
+    "open_positions": 1,
+    "return_pct": -0.0009499999999934516
+  },
+  "positions": [
+    {
+      "id": "USD/JPY_SELL_1755641194",
+      "pair": "USD/JPY",
+      "side": "SELL",
+      "size": 950.0,
+      "entry_price": 147.04299926757812,
+      "entry_time": "2025-08-19T23:06:34.871975",
+      "stop_loss": 147.04799926757812,
+      "take_profit": 147.03299926757813,
+      "current_price": 147.04299926757812,
+      "unrealized_pnl": 0.0,
+      "status": "OPEN"
+    }
+  ],
+  "trades": []
+}

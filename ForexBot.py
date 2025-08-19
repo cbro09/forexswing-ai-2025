@@ -9,23 +9,23 @@ import torch.nn as nn
 import pandas as pd
 import numpy as np
 import time
-from Models.ForexLSTM import SimpleOptimizedLSTM, create_simple_features
+from models.ForexLSTM import SimpleOptimizedLSTM, create_simple_features
 
 class ForexBot:
     """
     Professional AI-powered forex trading bot
     """
     
-    def __init__(self, model_path="Models/TrainedModels/optimized_forex_ai.pth"):
+    def __init__(self, model_path="data/models/optimized_forex_ai.pth"):
         # Load LSTM model
         self.model = SimpleOptimizedLSTM(input_size=20, hidden_size=128, num_layers=3, dropout=0.4)
         self.load_model(model_path)
         
-        # Signal calibration thresholds (from optimization)
+        # Signal calibration thresholds (balanced for all signals)
         self.thresholds = {
-            'buy_threshold': 0.25,
-            'sell_threshold': 0.20,
-            'hold_max': 0.588,
+            'buy_threshold': 0.50,
+            'sell_threshold': 0.50,
+            'hold_max': 0.55,
             'confidence_boost': 1.1
         }
         
@@ -249,7 +249,7 @@ def test_final_system():
     print("=" * 50)
     
     # Initialize strategy
-    strategy = FinalOptimizedStrategy()
+    strategy = ForexBot()
     
     # Create comprehensive test scenarios
     test_scenarios = {
