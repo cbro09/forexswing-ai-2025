@@ -468,3 +468,32 @@
     color: #666 !important;
     font-style: italic !important;
 }
+
+.forexai-pair-selector {
+    padding: 10px 15px !important;
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+}
+
+.forexai-pair-selector select {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    font-family: inherit !important;
+    background: white !important;
+    color: #333 !important;
+    cursor: pointer !important;
+    transition: border-color 0.2s !important;
+}
+
+.forexai-pair-selector select:hover {
+    border-color: #667eea !important;
+}
+
+.forexai-pair-selector select:focus {
+    outline: none !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
+}

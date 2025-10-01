@@ -64,10 +64,22 @@ class ForexAICompanion {
                 <button class="forexai-refresh" id="forexai-refresh-btn" title="Analyze Current Pair">🔄</button>
                 <button class="forexai-close" id="forexai-close-btn">×</button>
             </div>
+            <div class="forexai-pair-selector">
+                <select id="forexai-pair-select">
+                    <option value="">Select Pair...</option>
+                    <option value="EURUSD">EUR/USD</option>
+                    <option value="GBPUSD">GBP/USD</option>
+                    <option value="USDJPY">USD/JPY</option>
+                    <option value="USDCHF">USD/CHF</option>
+                    <option value="AUDUSD">AUD/USD</option>
+                    <option value="USDCAD">USD/CAD</option>
+                    <option value="NZDUSD">NZD/USD</option>
+                </select>
+            </div>
             <div class="forexai-content">
                 <div class="forexai-loading">
                     <div class="forexai-spinner"></div>
-                    <span>Detecting currency pair...</span>
+                    <span>Select a pair or detecting...</span>
                 </div>
             </div>
         `;
@@ -82,9 +94,27 @@ class ForexAICompanion {
 
         this.overlay.querySelector('#forexai-refresh-btn').addEventListener('click', () => {
             console.log('🔄 Manual refresh requested');
-            this.detectCurrencyPair();
             if (this.currentPair) {
                 this.updateAnalysis();
+            } else {
+                alert('Please select a currency pair first');
+            }
+        });
+
+        // Add dropdown listener
+        this.overlay.querySelector('#forexai-pair-select').addEventListener('change', (e) => {
+            const selectedPair = e.target.value;
+            if (selectedPair) {
+                console.log(`📊 User selected pair: ${selectedPair}`);
+                this.currentPair = selectedPair;
+
+                const content = this.overlay.querySelector('.forexai-content');
+                content.innerHTML = `
+                    <div class="forexai-ready">
+                        <div class="forexai-pair-detected">${selectedPair}</div>
+                        <div class="forexai-instruction">Click 🔄 to analyze</div>
+                    </div>
+                `;
             }
         });
         
@@ -197,14 +227,22 @@ class ForexAICompanion {
             console.log(`💱 Detected new pair: ${detectedPair}`);
             this.currentPair = detectedPair;
 
+            // Update dropdown selection
+            const dropdown = this.overlay.querySelector('#forexai-pair-select');
+            if (dropdown) {
+                dropdown.value = detectedPair;
+            }
+
             // Show detected pair without auto-analyzing
             const content = this.overlay.querySelector('.forexai-content');
-            content.innerHTML = `
-                <div class="forexai-ready">
-                    <div class="forexai-pair-detected">${detectedPair}</div>
-                    <div class="forexai-instruction">Click 🔄 to analyze</div>
-                </div>
-            `;
+            if (content) {
+                content.innerHTML = `
+                    <div class="forexai-ready">
+                        <div class="forexai-pair-detected">${detectedPair}</div>
+                        <div class="forexai-instruction">Click 🔄 to analyze</div>
+                    </div>
+                `;
+            }
         } else if (!detectedPair) {
             console.log('⏳ Still detecting currency pair...');
         }
