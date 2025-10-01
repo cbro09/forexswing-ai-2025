@@ -1,6 +1,6 @@
-# ForexSwing AI 2025 - Professional Trading System
+# 🚀 ForexSwing AI 2025 - Professional Trading System
 
-**CLEAN, OPTIMIZED AI TRADING SYSTEM** with advanced ML models, enhanced Gemini AI integration, and easy-to-use interfaces.
+**🚀 AI TRADING SYSTEM** with real-time data, advanced ML models, and browser companion overlay.
 
 ## 🎯 System Performance
 

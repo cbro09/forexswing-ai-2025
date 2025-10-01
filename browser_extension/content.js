@@ -59,8 +59,8 @@ class ForexAICompanion {
         this.overlay.className = 'forexai-overlay';
         this.overlay.innerHTML = `
             <div class="forexai-header">
-                <span class="forexai-logo">🤖</span>
-                <span class="forexai-title">ForexSwing AI</span>
+                <span class="forexai-logo">🚀</span>
+                <span class="forexai-title">Forex AI</span>
                 <button class="forexai-refresh" id="forexai-refresh-btn" title="Analyze Current Pair">🔄</button>
                 <button class="forexai-close" id="forexai-close-btn">×</button>
             </div>
