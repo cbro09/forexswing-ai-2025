@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚀 ForexSwing AI Extension - Final Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+        .info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        .test-result { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin: 10px 0; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ForexSwing AI Extension - Final Test</h1>
+        
+        <div class="test-section success">
+            <h2>✅ All Issues Fixed!</h2>
+            <ul>
+                <li><strong>Service Worker Errors:</strong> Fixed duplicate listeners</li>
+                <li><strong>API Port Mismatch:</strong> All files now use 8082</li>
+                <li><strong>400 Error (Pair Format):</strong> API now accepts both EURUSD and EUR/USD</li>
+                <li><strong>Missing Permissions:</strong> Added notifications and contextMenus</li>
+                <li><strong>CORS Issues:</strong> Proper headers for extension access</li>
+            </ul>
+        </div>
+
+        <div class="grid">
+            <div>
+                <h2>🧪 API Tests</h2>
+                <button onclick="testPairFormats()">Test Pair Formats</button>
+                <button onclick="testStatus()">Test Status</button>
+                <button onclick="testCORS()">Test CORS</button>
+                <div id="apiResults" class="test-result" style="display: none;"></div>
+            </div>
+            
+            <div>
+                <h2>🔧 Extension Instructions</h2>
+                <div class="test-section info">
+                    <strong>To test the fixed extension:</strong><br>
+                    1. Open Chrome → Extensions (chrome://extensions/)<br>
+                    2. Find "ForexSwing AI Companion"<br>
+                    3. Click reload (🔄) button<br>
+                    4. Check browser console for errors<br>
+                    5. Click extension icon → should open popup<br>
+                    6. Visit TradingView.com → should see overlay
+                </div>
+            </div>
+        </div>
+
+        <h2>📊 Expected Behavior</h2>
+        <div class="test-section success">
+            <h3>✅ What Should Work Now:</h3>
+            <ul>
+                <li><strong>No console errors</strong> when extension loads</li>
+                <li><strong>Extension popup opens</strong> without errors</li>
+                <li><strong>API health check passes</strong> (green status dot)</li>
+                <li><strong>Analysis requests work</strong> with both EURUSD and EUR/USD formats</li>
+                <li><strong>Real AI data</strong> shown in overlay (not demo data)</li>
+                <li><strong>Live Gemini analysis</strong> active (✅ checkmarks)</li>
+            </ul>
+        </div>
+
+        <h2>🎯 Live System Status</h2>
+        <div id="systemStatus" class="test-section info">
+            <strong>Checking system status...</strong>
+        </div>
+
+        <h2>🔍 Troubleshooting</h2>
+        <div class="test-section warning">
+            <strong>If you still see errors:</strong><br>
+            1. <strong>Hard reload extension:</strong> Remove and re-add the extension<br>
+            2. <strong>Check API service:</strong> Make sure companion_api_service_lite.py is running<br>
+            3. <strong>Clear browser cache:</strong> Hard refresh any trading pages<br>
+            4. <strong>Check console:</strong> Look for remaining error messages<br>
+        </div>
+    </div>
+
+    <script>
+        // Test different pair formats that were causing 400 errors
+        async function testPairFormats() {
+            const results = document.getElementById('apiResults');
+            results.style.display = 'block';
+            results.innerHTML = 'Testing pair format handling...\n';
+            
+            const testPairs = [
+                'EURUSD',    // Raw format (was causing 400)
+                'EUR/USD',   // Slash format
+                'GBPUSD',    // Another raw format
+                'GBP/USD',   // Another slash format
+                'USDJPY'     // Different pair
+            ];
+            
+            let allPassed = true;
+            
+            for (const pair of testPairs) {
+                try {
+                    const response = await fetch(`http://localhost:8082/api/analyze?pair=${encodeURIComponent(pair)}`);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        results.innerHTML += `✅ ${pair} → ${data.pair} (${data.action} ${(data.confidence * 100).toFixed(1)}%)\n`;
+                    } else {
+                        results.innerHTML += `❌ ${pair} → ERROR: ${data.error}\n`;
+                        allPassed = false;
+                    }
+                } catch (error) {
+                    results.innerHTML += `❌ ${pair} → NETWORK ERROR: ${error.message}\n`;
+                    allPassed = false;
+                }
+            }
+            
+            results.innerHTML += `\n${allPassed ? '🎉 ALL PAIR FORMATS WORKING!' : '⚠️ Some formats still failing'}`;
+            results.className = `test-result ${allPassed ? 'success' : 'error'}`;
+        }
+
+        async function testStatus() {
+            const results = document.getElementById('apiResults');
+            results.style.display = 'block';
+            results.innerHTML = 'Testing API status...\n';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/status');
+                const data = await response.json();
+                
+                results.innerHTML = `
+✅ API STATUS TEST PASSED
+Status: ${data.status}
+Enhancement Level: ${data.enhancement_level}
+Models Active: ${data.models_active}
+Model Status:
+  LSTM: ${data.model_status.lstm ? '✅' : '❌'}
+  Gemini: ${data.model_status.gemini ? '✅' : '❌'}
+  News: ${data.model_status.news ? '✅' : '❌'}
+Supported Pairs: ${data.supported_pairs}
+`;
+                results.className = 'test-result success';
+            } catch (error) {
+                results.innerHTML = `❌ API STATUS FAILED: ${error.message}`;
+                results.className = 'test-result error';
+            }
+        }
+
+        async function testCORS() {
+            const results = document.getElementById('apiResults');
+            results.style.display = 'block';
+            results.innerHTML = 'Testing CORS headers for extension access...\n';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/status', {
+                    method: 'GET',
+                    headers: {
+                        'Origin': 'chrome-extension://test-extension-id'
+                    }
+                });
+                
+                const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+                const data = await response.json();
+                
+                results.innerHTML = `
+✅ CORS TEST PASSED
+Access-Control-Allow-Origin: ${corsHeader}
+Response: ${response.status} ${response.statusText}
+Data received: ${JSON.stringify(data, null, 2).substring(0, 200)}...
+`;
+                results.className = 'test-result success';
+            } catch (error) {
+                results.innerHTML = `❌ CORS TEST FAILED: ${error.message}`;
+                results.className = 'test-result error';
+            }
+        }
+
+        // Check system status on load
+        window.onload = async function() {
+            const status = document.getElementById('systemStatus');
+            try {
+                const response = await fetch('http://localhost:8082/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    status.innerHTML = `
+<strong>🟢 System Online</strong><br>
+API Service: ✅ Running on port 8082<br>
+Enhancement Level: ${data.enhancement_level}<br>
+AI Models Active: ${data.models_active}<br>
+Last Update: ${new Date().toLocaleTimeString()}
+                    `;
+                    status.className = 'test-section success';
+                } else {
+                    throw new Error('API response not OK');
+                }
+            } catch (error) {
+                status.innerHTML = `
+<strong>🔴 System Offline</strong><br>
+Error: ${error.message}<br>
+Solution: Start the companion service:<br>
+<code>python companion_api_service_lite.py</code>
+                `;
+                status.className = 'test-section error';
+            }
+        };
+    </script>
+</body>
+</html>

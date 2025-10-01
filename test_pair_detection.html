@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Pair Detection</title>
+</head>
+<body>
+    <h1>Test Currency Pair Detection & Normalization</h1>
+    
+    <script>
+        // Test the normalizePair function from content.js
+        function normalizePair(pair) {
+            // Convert to standard format (EUR/USD)
+            const cleaned = pair.replace(/[^A-Z]/gi, '').toUpperCase();
+            if (cleaned.length === 6) {
+                return `${cleaned.slice(0, 3)}/${cleaned.slice(3)}`;
+            }
+            return pair;
+        }
+        
+        // Test cases
+        const testCases = [
+            "EURUSD",
+            "GBPUSD", 
+            "USDJPY",
+            "EUR/USD",
+            "GBP/USD"
+        ];
+        
+        console.log("Testing pair normalization:");
+        testCases.forEach(pair => {
+            const normalized = normalizePair(pair);
+            console.log(`${pair} → ${normalized}`);
+        });
+        
+        // Test API call
+        async function testAPI(pair) {
+            try {
+                const normalized = normalizePair(pair);
+                console.log(`Testing API with: ${pair} → ${normalized}`);
+                
+                const response = await fetch(`http://localhost:8082/api/analyze?pair=${encodeURIComponent(normalized)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log(`✅ API Success for ${pair}:`, data.action);
+                } else {
+                    console.log(`❌ API Error for ${pair}:`, data.error);
+                }
+            } catch (error) {
+                console.log(`❌ Network Error for ${pair}:`, error.message);
+            }
+        }
+        
+        // Test the problematic cases
+        setTimeout(() => {
+            console.log("\nTesting API calls:");
+            testAPI("EURUSD");  // Should work after normalization
+            testAPI("GBPUSD");  // Should work after normalization
+            testAPI("EUR/USD"); // Should work as-is
+        }, 1000);
+    </script>
+</body>
+</html>

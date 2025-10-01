@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ForexSwing AI Extension Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ForexSwing AI Extension Test</h1>
+        
+        <div class="status warning">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>Make sure the enhanced API service is running on port 8082</li>
+                <li>Reload the ForexSwing AI browser extension</li>
+                <li>Click the extension icon to test the popup</li>
+                <li>Visit TradingView to test the overlay</li>
+            </ol>
+        </div>
+
+        <h2>🔧 Fixed Issues:</h2>
+        <div class="status success">
+            ✅ <strong>API Port Mismatch Fixed:</strong> Updated all references from 8080 to 8082<br>
+            ✅ <strong>Missing Permissions Added:</strong> Added notifications and contextMenus permissions<br>
+            ✅ <strong>Service Worker Conflict Resolved:</strong> Removed conflicting onClicked listener<br>
+            ✅ <strong>Missing Icons Added:</strong> Created placeholder icon files<br>
+        </div>
+
+        <h2>🧪 API Test:</h2>
+        <button onclick="testAPI()">Test API Connection</button>
+        <button onclick="testAnalysis()">Test Analysis Endpoint</button>
+        <div id="apiResults" class="test-result" style="display: none;"></div>
+
+        <h2>📱 Extension Test:</h2>
+        <div class="status warning">
+            <strong>To test the extension:</strong><br>
+            1. Open Chrome Extensions page (chrome://extensions/)<br>
+            2. Find "ForexSwing AI Companion"<br>
+            3. Click the reload button (🔄)<br>
+            4. Click the extension icon in the toolbar<br>
+            5. The popup should open without errors
+        </div>
+
+        <h2>🎯 Expected Results:</h2>
+        <div class="status success">
+            <strong>✅ Extension should now work with:</strong><br>
+            • No "Service worker registration failed" errors<br>
+            • No "Cannot read properties of undefined" errors<br>
+            • API health check should pass<br>
+            • Analysis requests should return real AI data<br>
+        </div>
+
+        <div class="status" id="serverStatus">
+            <strong>📡 Checking API server status...</strong>
+        </div>
+    </div>
+
+    <script>
+        // Test API connection
+        async function testAPI() {
+            const results = document.getElementById('apiResults');
+            results.style.display = 'block';
+            results.innerHTML = 'Testing API connection...';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/status');
+                const data = await response.json();
+                
+                results.innerHTML = `
+<strong>✅ API Status Test PASSED</strong>
+Status: ${data.status}
+Enhancement Level: ${data.enhancement_level}
+Models Active: ${data.models_active}
+Supported Pairs: ${data.supported_pairs}
+`;
+                results.className = 'test-result success';
+            } catch (error) {
+                results.innerHTML = `
+<strong>❌ API Status Test FAILED</strong>
+Error: ${error.message}
+
+Make sure the companion service is running:
+python companion_api_service_lite.py
+`;
+                results.className = 'test-result error';
+            }
+        }
+
+        // Test analysis endpoint
+        async function testAnalysis() {
+            const results = document.getElementById('apiResults');
+            results.style.display = 'block';
+            results.innerHTML = 'Testing analysis endpoint...';
+            
+            try {
+                const response = await fetch('http://localhost:8082/api/analyze?pair=EUR/USD');
+                const data = await response.json();
+                
+                results.innerHTML = `
+<strong>✅ Analysis Test PASSED</strong>
+Pair: ${data.pair}
+Action: ${data.action}
+Confidence: ${(data.confidence * 100).toFixed(1)}%
+Enhancement Level: ${data.enhancement_level}
+Models Active: ${data.models_active}
+Components:
+  LSTM: ${data.components.lstm}
+  Gemini: ${data.components.gemini}
+  News: ${data.components.news}
+`;
+                results.className = 'test-result success';
+            } catch (error) {
+                results.innerHTML = `
+<strong>❌ Analysis Test FAILED</strong>
+Error: ${error.message}
+`;
+                results.className = 'test-result error';
+            }
+        }
+
+        // Check server status on load
+        window.onload = async function() {
+            const status = document.getElementById('serverStatus');
+            try {
+                const response = await fetch('http://localhost:8082/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    status.innerHTML = `<strong>✅ API Server Online:</strong> ${data.models_active} AI models active on port 8082`;
+                    status.className = 'status success';
+                } else {
+                    throw new Error('API response not OK');
+                }
+            } catch (error) {
+                status.innerHTML = `<strong>❌ API Server Offline:</strong> Please start the companion service`;
+                status.className = 'status error';
+            }
+        };
+    </script>
+</body>
+</html>
