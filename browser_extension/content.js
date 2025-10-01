@@ -124,10 +124,10 @@ class ForexAICompanion {
     }
     
     startMonitoring() {
-        // Only detect once on page load, then use manual refresh button
+        // Initial detection
         this.detectCurrencyPair();
 
-        // Optional: Monitor for URL changes (when user switches pairs)
+        // Monitor URL changes
         let lastUrl = window.location.href;
         setInterval(() => {
             if (window.location.href !== lastUrl) {
@@ -136,6 +136,43 @@ class ForexAICompanion {
                 this.detectCurrencyPair();
             }
         }, 1000);
+
+        // Watch for DOM changes (TradingView switches pairs without URL change)
+        let lastCheck = 0;
+        const observer = new MutationObserver(() => {
+            // Throttle checks to max once per 500ms
+            const now = Date.now();
+            if (now - lastCheck < 500) return;
+            lastCheck = now;
+
+            // Check if the symbol in the page changed
+            const currentDetected = this.detectTradingViewPair();
+            if (currentDetected && currentDetected !== this.currentPair) {
+                console.log(`🔄 Pair changed: ${this.currentPair} → ${currentDetected}`);
+                this.currentPair = currentDetected;
+
+                // Show new pair ready for analysis
+                const content = this.overlay.querySelector('.forexai-content');
+                if (content) {
+                    content.innerHTML = `
+                        <div class="forexai-ready">
+                            <div class="forexai-pair-detected">${currentDetected}</div>
+                            <div class="forexai-instruction">Click 🔄 to analyze</div>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        // Start observing the document for changes
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: false,
+            attributes: false
+        });
+
+        console.log('✅ Monitoring started: URL + DOM changes');
     }
     
     detectCurrencyPair() {
