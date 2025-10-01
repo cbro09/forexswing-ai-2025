@@ -36,7 +36,7 @@ python demo_enhanced_gemini.py
 
 ### **System Validation**
 ```bash
-python system_check.py
+python scripts/system_check.py
 ```
 
 ## 📊 Optimization Achievements
@@ -71,30 +71,41 @@ ForexSwing-AI/
 ├── ForexBot.py                              # Main AI trading bot
 ├── paper_trading_system.py                  # Paper trading simulator
 ├── enhanced_gemini_trading_system.py        # Enhanced AI integration
-├── system_check.py                          # System validation
+├── companion_api_service.py                 # Full-featured API service
+├── companion_api_service_lite.py            # Lightweight API for extensions
 ├── requirements.txt                         # Dependencies
-├── models/ForexLSTM.py                      # Core LSTM architecture
+├── scripts/                                 # Utility scripts
+│   ├── system_check.py                      # System validation
+│   └── install_dependencies.py              # Dependency installer
+├── Models/ForexLSTM.py                      # Core LSTM architecture
 ├── src/                                     # Source code
 │   ├── core/models/optimized_forex_lstm.py # Optimized model implementation
 │   ├── integrations/optimized_gemini.py    # Gemini AI integration
 │   └── indicators/jax_advanced_indicators.py # JAX accelerated indicators
 ├── data/                                    # Clean data structure
-│   ├── MarketData/                          # Historical forex data (7 pairs)
+│   ├── MarketData/                          # Historical forex data (8 pairs)
 │   │   ├── EUR_USD_real_daily.csv         # 1,300+ candles per pair
 │   │   ├── GBP_USD_real_daily.csv         # Real market data
-│   │   └── [5 other major pairs]          # Complete dataset
+│   │   └── [6 other major pairs]          # Complete dataset
 │   └── models/                              # Trained AI models
 │       ├── optimized_forex_ai.pth          # Main LSTM model (1.6MB)
 │       └── optimized_scaler.pkl            # Feature scaler
+├── browser_extension/                       # Chrome/Edge extension
+│   ├── manifest.json                        # Extension configuration
+│   ├── content.js                           # Page overlay injection
+│   ├── background.js                        # Service worker
+│   ├── popup.html/js                        # Extension popup
+│   └── tests/                               # Extension test files
 ├── tests/                                   # Organized test suite
 │   ├── system_validation/                   # Signal analysis & debugging
-│   ├── integration/                         # Integration tests
+│   ├── integration/                         # Integration & news tests
 │   ├── performance/                         # Performance & backtesting
 │   └── core functionality tests            # Basic bot tests
 ├── examples/                                # Demo files & results
 ├── docs/                                    # Additional documentation
 ├── EASY_USAGE_GUIDE.md                     # 📖 How to use the bot
 ├── BOT_USAGE_SUMMARY.md                    # 📋 Quick reference
+├── COMPANION_SYSTEM_ARCHITECTURE.md         # Companion API documentation
 └── ROADMAP.md                              # Development plan
 ```
 
