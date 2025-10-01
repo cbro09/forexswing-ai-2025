@@ -175,76 +175,43 @@ class ForexAICompanion {
     
     detectTradingViewPair() {
         console.log('🔍 Detecting TradingView pair...');
-        
-        // Try multiple selectors for TradingView (updated for current DOM)
-        const selectors = [
-            // Modern TradingView selectors
-            '[data-name="legend-source-title"]',
-            '[data-name="legend-source-item"] [data-name="legend-source-title"]',
-            '.chart-markup-table [data-name="legend-source-title"]',
-            '[class*="titleWrapper"] [data-name="legend-source-title"]',
-            
-            // Legacy selectors
-            '.tv-symbol-header__short-title',
-            '.tv-symbol-header__text-wrap',
-            '[data-name="legend-source-item"] .tv-symbol-header__short-title',
-            '.chart-markup-table .tv-symbol-header__short-title',
-            'h1[data-name="legend-source-title"]',
-            '.js-symbol-link',
-            '[data-name="legend-source-item"]',
-            
-            // Additional modern selectors
-            '[class*="symbol"]',
-            '[class*="ticker"]',
-            '.js-symbol-link-text',
-            '[data-symbol-short]',
-            '[title*="USD"]',
-            '[title*="EUR"]',
-            '[title*="GBP"]'
-        ];
-        
-        for (const selector of selectors) {
-            const element = document.querySelector(selector);
-            console.log(`Trying selector: ${selector}`, element);
-            if (element) {
-                const text = element.textContent.trim();
-                console.log(`Found text: "${text}"`);
-                if (this.isValidForexPair(text)) {
-                    console.log(`✅ Valid forex pair detected: ${text}`);
-                    return text;
-                } else {
-                    console.log(`❌ Not a valid forex pair: ${text}`);
-                }
-            }
-        }
-        
-        // Try URL parsing
-        console.log(`🔍 Checking URL: ${window.location.href}`);
-        const urlMatch = window.location.pathname.match(/\/chart\/[^\/]*\/([^\/]+)/);
-        if (urlMatch) {
-            const symbol = urlMatch[1];
-            console.log(`Found symbol in URL: ${symbol}`);
-            if (this.isValidForexPair(symbol)) {
-                console.log(`✅ Valid forex pair from URL: ${symbol}`);
-                return symbol;
-            } else {
-                console.log(`❌ Not a valid forex pair from URL: ${symbol}`);
-            }
-        }
-        
-        // Try query parameter parsing 
+
+        // PRIORITY 1: Check URL first (fastest and most reliable)
         const urlParams = new URLSearchParams(window.location.search);
         const symbolParam = urlParams.get('symbol');
         if (symbolParam) {
-            console.log(`Found symbol in params: ${symbolParam}`);
-            // Extract the actual symbol (e.g., from "OANDA:EURUSD" get "EURUSD")
             const cleanSymbol = symbolParam.split(':').pop();
-            console.log(`Cleaned symbol: ${cleanSymbol}`);
             if (this.isValidForexPair(cleanSymbol)) {
-                console.log(`✅ Valid forex pair from params: ${cleanSymbol}`);
+                console.log(`✅ Valid forex pair from URL params: ${cleanSymbol}`);
                 return cleanSymbol;
-            } else {
-                console.log(`❌ Not a valid forex pair from params: ${cleanSymbol}`);
+            }
+        }
+
+        // PRIORITY 2: Check URL path
+        const urlMatch = window.location.pathname.match(/\/chart\/[^\/]*\/([^\/]+)/);
+        if (urlMatch) {
+            const symbol = urlMatch[1];
+            if (this.isValidForexPair(symbol)) {
+                console.log(`✅ Valid forex pair from URL path: ${symbol}`);
+                return symbol;
+            }
+        }
+
+        // PRIORITY 3: Quick DOM check (only fast selectors)
+        console.log('Trying DOM detection...');
+        const quickSelectors = [
+            '[data-name="legend-source-title"]',
+            '[data-symbol-short]'
+        ];
+
+        for (const selector of quickSelectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+                const text = element.textContent.trim();
+                if (this.isValidForexPair(text)) {
+                    console.log(`✅ Valid forex pair from DOM: ${text}`);
+                    return text;
+                }
             }
         }
         
@@ -335,16 +302,28 @@ class ForexAICompanion {
         if (!this.currentPair) return;
 
         const content = this.overlay.querySelector('.forexai-content');
+
+        // Step 1: Show initial status
         content.innerHTML = `
             <div class="forexai-loading">
                 <div class="forexai-spinner"></div>
-                <span>Analyzing ${this.currentPair}...</span>
+                <span>🔍 Fetching ${this.currentPair} data...</span>
             </div>
         `;
 
         try {
             const normalizedPair = this.normalizePair(this.currentPair);
             const apiUrl = `${this.apiUrl}/analyze?pair=${encodeURIComponent(normalizedPair)}`;
+
+            // Step 2: Update status
+            setTimeout(() => {
+                content.innerHTML = `
+                    <div class="forexai-loading">
+                        <div class="forexai-spinner"></div>
+                        <span>📊 Running AI analysis...</span>
+                    </div>
+                `;
+            }, 500);
 
             // Use background script to fetch API (bypasses CSP)
             const response = await chrome.runtime.sendMessage({
@@ -356,7 +335,17 @@ class ForexAICompanion {
                 throw new Error(response.error || 'API request failed');
             }
 
-            this.displayAnalysis(response.data);
+            // Step 3: Update status before displaying
+            content.innerHTML = `
+                <div class="forexai-loading">
+                    <div class="forexai-spinner"></div>
+                    <span>✅ Preparing results...</span>
+                </div>
+            `;
+
+            setTimeout(() => {
+                this.displayAnalysis(response.data);
+            }, 200);
 
         } catch (error) {
             console.error('❌ Analysis failed:', error);
