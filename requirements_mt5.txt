@@ -1,0 +1,21 @@
+# MetaTrader 5 Live Trading Requirements
+# Install with: pip install -r requirements_mt5.txt
+
+# Core MT5 integration
+MetaTrader5>=5.0.45
+
+# Existing requirements (if not already installed)
+streamlit>=1.28.0
+plotly>=5.15.0
+pandas>=1.5.0
+numpy>=1.24.0
+
+# Additional dependencies for live trading
+python-dotenv>=1.0.0  # For environment variables
+cryptography>=41.0.0   # For secure credential storage
+schedule>=1.2.0        # For automated tasks
+websockets>=11.0.0     # For real-time communication (future feature)
+
+# Optional: Enhanced logging and monitoring
+loguru>=0.7.0          # Enhanced logging
+psutil>=5.9.0          # System monitoring

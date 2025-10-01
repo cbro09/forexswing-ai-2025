@@ -1,0 +1,52 @@
+# ForexSwing AI 2025 - All-in-One App Requirements
+# Core dependencies for the web application
+
+# Existing ML dependencies
+torch>=1.9.0
+pandas>=1.3.0
+numpy>=1.21.0
+scikit-learn>=1.0.0
+
+# JAX acceleration (optional but recommended)
+jax>=0.3.0
+jaxlib>=0.3.0
+
+# Web application framework
+streamlit>=1.28.0
+
+# Interactive charts and visualization
+plotly>=5.15.0
+plotly-express>=0.4.1
+
+# Live forex data APIs
+requests>=2.28.0
+urllib3>=1.26.0
+
+# Additional data handling
+yfinance>=0.2.0
+
+# Time and date utilities
+python-dateutil>=2.8.0
+
+# Progress bars and UI
+tqdm>=4.64.0
+
+# Configuration management
+pydantic>=1.10.0
+
+# Async support for real-time features
+asyncio-mqtt>=0.11.0
+websockets>=10.4
+
+# Optional: Real-time data feeds
+# alpha-vantage>=2.3.1
+# polygon-api-client>=1.9.0
+
+# Optional: Advanced charting
+# mplfinance>=0.12.9b7
+# cufflinks>=0.17.3
+
+# Development and testing
+pytest>=7.1.0
+black>=22.0.0
+flake8>=5.0.0
