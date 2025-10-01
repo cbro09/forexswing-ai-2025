@@ -61,6 +61,7 @@ class ForexAICompanion {
             <div class="forexai-header">
                 <span class="forexai-logo">🤖</span>
                 <span class="forexai-title">ForexSwing AI</span>
+                <button class="forexai-refresh" id="forexai-refresh-btn" title="Analyze Current Pair">🔄</button>
                 <button class="forexai-close" id="forexai-close-btn">×</button>
             </div>
             <div class="forexai-content">
@@ -74,9 +75,17 @@ class ForexAICompanion {
         // Add to page
         document.body.appendChild(this.overlay);
         
-        // Add close button event listener
+        // Add button event listeners
         this.overlay.querySelector('#forexai-close-btn').addEventListener('click', () => {
             this.overlay.style.display = 'none';
+        });
+
+        this.overlay.querySelector('#forexai-refresh-btn').addEventListener('click', () => {
+            console.log('🔄 Manual refresh requested');
+            this.detectCurrencyPair();
+            if (this.currentPair) {
+                this.updateAnalysis();
+            }
         });
         
         // Make draggable
@@ -115,13 +124,18 @@ class ForexAICompanion {
     }
     
     startMonitoring() {
-        // Check for currency pairs every 2 seconds
-        this.updateInterval = setInterval(() => {
-            this.detectCurrencyPair();
-        }, 2000);
-        
-        // Initial check
+        // Only detect once on page load, then use manual refresh button
         this.detectCurrencyPair();
+
+        // Optional: Monitor for URL changes (when user switches pairs)
+        let lastUrl = window.location.href;
+        setInterval(() => {
+            if (window.location.href !== lastUrl) {
+                lastUrl = window.location.href;
+                console.log('🔄 URL changed, detecting new pair...');
+                this.detectCurrencyPair();
+            }
+        }, 1000);
     }
     
     detectCurrencyPair() {
@@ -145,7 +159,15 @@ class ForexAICompanion {
         if (detectedPair && detectedPair !== this.currentPair) {
             console.log(`💱 Detected new pair: ${detectedPair}`);
             this.currentPair = detectedPair;
-            this.updateAnalysis();
+
+            // Show detected pair without auto-analyzing
+            const content = this.overlay.querySelector('.forexai-content');
+            content.innerHTML = `
+                <div class="forexai-ready">
+                    <div class="forexai-pair-detected">${detectedPair}</div>
+                    <div class="forexai-instruction">Click 🔄 to analyze</div>
+                </div>
+            `;
         } else if (!detectedPair) {
             console.log('⏳ Still detecting currency pair...');
         }
@@ -311,7 +333,7 @@ class ForexAICompanion {
     
     async updateAnalysis() {
         if (!this.currentPair) return;
-        
+
         const content = this.overlay.querySelector('.forexai-content');
         content.innerHTML = `
             <div class="forexai-loading">
@@ -319,18 +341,23 @@ class ForexAICompanion {
                 <span>Analyzing ${this.currentPair}...</span>
             </div>
         `;
-        
+
         try {
             const normalizedPair = this.normalizePair(this.currentPair);
-            const response = await fetch(`${this.apiUrl}/analyze?pair=${encodeURIComponent(normalizedPair)}`);
-            
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status}`);
+            const apiUrl = `${this.apiUrl}/analyze?pair=${encodeURIComponent(normalizedPair)}`;
+
+            // Use background script to fetch API (bypasses CSP)
+            const response = await chrome.runtime.sendMessage({
+                action: 'fetchAPI',
+                url: apiUrl
+            });
+
+            if (!response.success) {
+                throw new Error(response.error || 'API request failed');
             }
-            
-            const analysis = await response.json();
-            this.displayAnalysis(analysis);
-            
+
+            this.displayAnalysis(response.data);
+
         } catch (error) {
             console.error('❌ Analysis failed:', error);
             this.displayError(error.message);

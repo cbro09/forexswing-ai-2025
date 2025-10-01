@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 ForexSwing AI - Enhanced Companion API Service (Lite Version)
 Uses real AI models with fallback for missing dependencies
@@ -8,6 +9,12 @@ import json
 import time
 import sys
 import os
+import io
+
+# Force UTF-8 encoding for console output
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 from datetime import datetime
 from typing import Dict, List, Optional
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -55,15 +62,15 @@ class EnhancedCompanionAnalyzer:
             self.models_status['lstm'] = False
             print(f"⚠️ LSTM model fallback: {e}")
         
-        # Try to initialize Gemini
+        # Try to initialize Gemini CLI (free version)
         try:
-            from src.integrations.live_gemini_api import LiveGeminiAnalyzer
-            self.gemini_analyzer = LiveGeminiAnalyzer()
-            self.models_status['gemini'] = self.gemini_analyzer.available
+            from src.integrations.optimized_gemini import OptimizedGeminiInterpreter
+            self.gemini_analyzer = OptimizedGeminiInterpreter()
+            self.models_status['gemini'] = self.gemini_analyzer.gemini_available
             if self.models_status['gemini']:
-                print("✅ Live Gemini API connected successfully")
+                print("✅ Gemini CLI connected successfully (free version)")
             else:
-                print("⚠️ Gemini API not available")
+                print("⚠️ Gemini CLI not available - install with: npm install -g @google/gemini-cli")
         except Exception as e:
             self.models_status['gemini'] = False
             print(f"⚠️ Gemini fallback: {e}")
@@ -194,15 +201,15 @@ class EnhancedCompanionAnalyzer:
                 'price_change_24h': self._get_price_change_for_pair(pair)
             }
             
-            # Get real Gemini analysis
-            analysis = self.gemini_analyzer.analyze_forex_market(market_context, pair)
-            
+            # Get real Gemini CLI analysis
+            analysis = self.gemini_analyzer.interpret_market_quickly(market_context, pair)
+
             return {
                 'success': True,
                 'sentiment': analysis.get('sentiment', 'neutral'),
-                'confidence': analysis.get('confidence', 0.5),
-                'reasoning': analysis.get('reasoning', 'Live Gemini analysis'),
-                'source': 'Live_Gemini_API'
+                'confidence': analysis.get('confidence', 0.5) / 100 if analysis.get('confidence', 0) > 1 else analysis.get('confidence', 0.5),
+                'reasoning': analysis.get('key_factor', 'Gemini CLI analysis'),
+                'source': 'Gemini_CLI_Free'
             }
             
         except Exception as e:
@@ -216,38 +223,35 @@ class EnhancedCompanionAnalyzer:
             }
     
     def _get_news_sentiment(self, pair: str) -> Dict:
-        """Get news sentiment (simplified version)"""
-        if not self.models_status['news']:
-            return {
-                'success': False,
-                'sentiment': 0.0,
-                'confidence': 0.3,
-                'articles_analyzed': 0,
-                'source': 'News_Demo'
-            }
-        
-        # Simplified news sentiment (could be enhanced with real API calls)
+        """Get real news sentiment from Yahoo Finance RSS"""
         try:
-            import urllib.request
-            import xml.etree.ElementTree as ET
-            
-            # Try Yahoo Finance RSS
-            url = "https://feeds.finance.yahoo.com/rss/2.0/headline"
-            req = urllib.request.Request(url)
-            req.add_header('User-Agent', 'Mozilla/5.0 (compatible; ForexAI/1.0)')
-            
-            with urllib.request.urlopen(req, timeout=5) as response:
-                data = response.read()
-                # Simple analysis would go here
+            from src.integrations.yahoo_news_fetcher import YahooNewsAnalyzer
+
+            if not hasattr(self, 'news_analyzer'):
+                self.news_analyzer = YahooNewsAnalyzer()
+
+            result = self.news_analyzer.get_news_sentiment(pair)
+
+            if result['success']:
                 return {
                     'success': True,
-                    'sentiment': 0.15,  # Simplified positive sentiment
-                    'confidence': 0.4,
-                    'articles_analyzed': 5,
+                    'sentiment': result['sentiment'],
+                    'confidence': result['confidence'],
+                    'articles_analyzed': result['article_count'],
+                    'top_headlines': result['top_headlines'][:3],
                     'source': 'Yahoo_Finance_RSS'
                 }
-                
+            else:
+                return {
+                    'success': False,
+                    'sentiment': 0.0,
+                    'confidence': 0.0,
+                    'articles_analyzed': 0,
+                    'source': 'News_Unavailable'
+                }
+
         except Exception as e:
+            print(f"⚠️ News sentiment error: {e}")
             return {
                 'success': False,
                 'sentiment': 0.0,
@@ -766,30 +770,30 @@ def create_handler_class(analyzer):
 
 def run_enhanced_companion_api(port: int = 8082):
     """Run the enhanced companion API server"""
-    print("🚀 FOREXSWING AI - ENHANCED COMPANION API SERVICE")
+    print("FOREXSWING AI - ENHANCED COMPANION API SERVICE")
     print("=" * 70)
-    
+
     # Initialize enhanced analyzer
     analyzer = EnhancedCompanionAnalyzer()
-    
+
     # Create HTTP server
     handler_class = create_handler_class(analyzer)
-    
+
     with HTTPServer(('localhost', port), handler_class) as server:
-        print(f"🌟 Enhanced companion API server starting on http://localhost:{port}")
-        print(f"🤖 Real AI models: {sum(analyzer.models_status.values())}/3 active")
-        print(f"📊 Supporting {len(analyzer.get_supported_pairs())} currency pairs")
-        print(f"🔗 Ready for enhanced companion interface integration")
-        print(f"📖 API documentation: http://localhost:{port}")
+        print(f"Enhanced companion API server starting on http://localhost:{port}")
+        print(f"Real AI models: {sum(analyzer.models_status.values())}/3 active")
+        print(f"Supporting {len(analyzer.get_supported_pairs())} currency pairs")
+        print(f"Ready for enhanced companion interface integration")
+        print(f"API documentation: http://localhost:{port}")
         print("=" * 70)
         print("Press Ctrl+C to stop the server")
         
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\n🛑 Enhanced server stopped by user")
+            print("\nEnhanced server stopped by user")
         except Exception as e:
-            print(f"❌ Server error: {e}")
+            print(f"Server error: {e}")
 
 if __name__ == "__main__":
     import sys

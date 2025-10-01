@@ -79,48 +79,71 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // Handle messages from content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('Background received message:', request);
-    
+
     switch (request.action) {
+        case 'fetchAPI':
+            // Proxy API calls to bypass CSP restrictions
+            const apiUrl = request.url;
+            console.log('🔄 Proxying API request:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ API response:', data);
+                    sendResponse({ success: true, data: data });
+                })
+                .catch(error => {
+                    console.error('❌ API fetch error:', error);
+                    sendResponse({ success: false, error: error.message });
+                });
+
+            return true; // Keep channel open for async response
+
         case 'pairDetected':
             // Update badge with detected pair
             chrome.action.setBadgeText({
                 tabId: sender.tab.id,
                 text: request.pair.split('/')[0] // Show first currency
             });
-            
+
             chrome.action.setBadgeBackgroundColor({
                 tabId: sender.tab.id,
                 color: '#667eea'
             });
-            
+
             sendResponse({ success: true });
             break;
-            
+
         case 'analysisUpdate':
             console.log('✅ Analysis updated:', request.data);
             sendResponse({ success: true });
             break;
-            
+
         case 'apiError':
             console.error('❌ API Error from content script:', request.error);
-            
+
             chrome.action.setBadgeText({
                 tabId: sender.tab.id,
                 text: '⚠️'
             });
-            
+
             chrome.action.setBadgeBackgroundColor({
                 tabId: sender.tab.id,
                 color: '#e74c3c'
             });
-            
+
             sendResponse({ success: true });
             break;
-            
+
         default:
             sendResponse({ success: false, error: 'Unknown action' });
     }
-    
+
     return true; // Keep message channel open for async response
 });
 
