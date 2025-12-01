@@ -1,0 +1,87 @@
+# ForexSwing AI 2025 - Lean Docker Compose
+# Optimized for Proxmox LXC deployment
+# Usage: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # MAIN BOT SERVICE (Required)
+  # =============================================================================
+  forexbot:
+    build: .
+    container_name: forexswing-bot
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - NEWS_API_KEY=${NEWS_API_KEY:-}
+      - DRY_RUN=${DRY_RUN:-true}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/api/status"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # =============================================================================
+  # DATA COLLECTOR SERVICE (Required)
+  # =============================================================================
+  data-collector:
+    build: .
+    container_name: forexswing-collector
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: python src/data/market_data_collector.py
+    depends_on:
+      - forexbot
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # =============================================================================
+  # MODEL TRAINER (Manual - Run with: docker-compose run trainer)
+  # =============================================================================
+  trainer:
+    build: .
+    container_name: forexswing-trainer
+    profiles:
+      - training
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: python src/training/enhanced_model_trainer.py
+
+# =============================================================================
+# NETWORKS & VOLUMES
+# =============================================================================
+networks:
+  default:
+    name: forexswing-network
+
+volumes:
+  data:
+  logs:

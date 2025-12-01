@@ -154,110 +154,20 @@ class ForexAICompanion {
     }
     
     startMonitoring() {
-        // Initial detection
-        this.detectCurrencyPair();
-
-        // Monitor URL changes
-        let lastUrl = window.location.href;
-        setInterval(() => {
-            if (window.location.href !== lastUrl) {
-                lastUrl = window.location.href;
-                console.log('🔄 URL changed, detecting new pair...');
-                this.detectCurrencyPair();
-            }
-        }, 1000);
-
-        // Watch for DOM changes (TradingView switches pairs without URL change)
-        let lastCheck = 0;
-        const observer = new MutationObserver(() => {
-            // Throttle checks to max once per 500ms
-            const now = Date.now();
-            if (now - lastCheck < 500) return;
-            lastCheck = now;
-
-            // Check if the symbol in the page changed
-            const currentDetected = this.detectTradingViewPair();
-            if (currentDetected && currentDetected !== this.currentPair) {
-                console.log(`🔄 Pair changed: ${this.currentPair} → ${currentDetected}`);
-                this.currentPair = currentDetected;
-
-                // Show new pair ready for analysis
-                const content = this.overlay.querySelector('.forexai-content');
-                if (content) {
-                    content.innerHTML = `
-                        <div class="forexai-ready">
-                            <div class="forexai-pair-detected">${currentDetected}</div>
-                            <div class="forexai-instruction">Click 🔄 to analyze</div>
-                        </div>
-                    `;
-                }
-            }
-        });
-
-        // Start observing the document for changes
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            characterData: false,
-            attributes: false
-        });
-
-        console.log('✅ Monitoring started: URL + DOM changes');
+        // Auto-detection disabled - user selects pair from dropdown
+        console.log('✅ Ready - Select a currency pair from the dropdown');
     }
     
-    detectCurrencyPair() {
-        const platform = this.detectPlatform();
-        console.log(`🌐 Platform detected: ${platform}`);
-        let detectedPair = null;
-        
-        if (platform === 'tradingview') {
-            detectedPair = this.detectTradingViewPair();
-        } else if (platform === 'forex.com') {
-            detectedPair = this.detectForexComPair();
-        } else if (platform === 'oanda') {
-            detectedPair = this.detectOandaPair();
-        } else {
-            console.log(`❌ Unsupported platform: ${platform}`);
-        }
-        
-        console.log(`🔍 Detection result: ${detectedPair || 'null'}`);
-        console.log(`📊 Current pair: ${this.currentPair || 'null'}`);
-        
-        if (detectedPair && detectedPair !== this.currentPair) {
-            console.log(`💱 Detected new pair: ${detectedPair}`);
-            this.currentPair = detectedPair;
-
-            // Update dropdown selection
-            const dropdown = this.overlay.querySelector('#forexai-pair-select');
-            if (dropdown) {
-                dropdown.value = detectedPair;
-            }
-
-            // Show detected pair without auto-analyzing
-            const content = this.overlay.querySelector('.forexai-content');
-            if (content) {
-                content.innerHTML = `
-                    <div class="forexai-ready">
-                        <div class="forexai-pair-detected">${detectedPair}</div>
-                        <div class="forexai-instruction">Click 🔄 to analyze</div>
-                    </div>
-                `;
-            }
-        } else if (!detectedPair) {
-            console.log('⏳ Still detecting currency pair...');
-        }
-    }
+    // Detection methods removed - user selects pair manually from dropdown
     
     detectTradingViewPair() {
-        console.log('🔍 Detecting TradingView pair...');
-
         // PRIORITY 1: Check URL first (fastest and most reliable)
         const urlParams = new URLSearchParams(window.location.search);
         const symbolParam = urlParams.get('symbol');
         if (symbolParam) {
             const cleanSymbol = symbolParam.split(':').pop();
             if (this.isValidForexPair(cleanSymbol)) {
-                console.log(`✅ Valid forex pair from URL params: ${cleanSymbol}`);
+                console.log(`✅ Detected from URL params: ${cleanSymbol}`);
                 return cleanSymbol;
             }
         }
@@ -267,16 +177,17 @@ class ForexAICompanion {
         if (urlMatch) {
             const symbol = urlMatch[1];
             if (this.isValidForexPair(symbol)) {
-                console.log(`✅ Valid forex pair from URL path: ${symbol}`);
+                console.log(`✅ Detected from URL path: ${symbol}`);
                 return symbol;
             }
         }
 
         // PRIORITY 3: Quick DOM check (only fast selectors)
-        console.log('Trying DOM detection...');
         const quickSelectors = [
             '[data-name="legend-source-title"]',
-            '[data-symbol-short]'
+            '[data-symbol-short]',
+            '.chart-container [class*="symbol"]',
+            '[class*="symbolName"]'
         ];
 
         for (const selector of quickSelectors) {
@@ -284,26 +195,22 @@ class ForexAICompanion {
             if (element) {
                 const text = element.textContent.trim();
                 if (this.isValidForexPair(text)) {
-                    console.log(`✅ Valid forex pair from DOM: ${text}`);
+                    console.log(`✅ Detected from DOM (${selector}): ${text}`);
                     return text;
                 }
             }
         }
-        
-        // Last resort: scan all text content for forex patterns
-        console.log('🔍 Scanning page text for forex patterns...');
-        const allElements = document.querySelectorAll('*');
-        for (const element of allElements) {
-            if (element.children.length === 0) { // Only leaf nodes
-                const text = element.textContent?.trim();
-                if (text && text.length <= 20 && this.isValidForexPair(text)) {
-                    console.log(`✅ Found forex pair in element: ${text}`, element);
-                    return text;
-                }
+
+        // PRIORITY 4: Scan specific watchlist/ticker areas only (not entire page)
+        const targetAreas = document.querySelectorAll('.symbolName-RsFlttSS, [class*="symbol"], .ticker');
+        for (const area of targetAreas) {
+            const text = area.textContent?.trim();
+            if (text && text.length <= 20 && this.isValidForexPair(text)) {
+                console.log(`✅ Detected from ticker area: ${text}`);
+                return text;
             }
         }
-        
-        console.log('❌ No forex pair detected');
+
         return null;
     }
     
@@ -351,16 +258,19 @@ class ForexAICompanion {
     
     isValidForexPair(text) {
         if (!text) return false;
-        
+
         // Clean the text - remove everything except letters
         const cleaned = text.replace(/[^A-Z]/gi, '').toUpperCase();
-        console.log(`Checking forex pattern for: "${text}" → "${cleaned}"`);
-        
+
         // Check if text matches forex pair pattern (6 letters, valid currencies)
         const forexPattern = /^(EUR|GBP|USD|JPY|CHF|AUD|CAD|NZD)(EUR|GBP|USD|JPY|CHF|AUD|CAD|NZD)$/;
         const isValid = forexPattern.test(cleaned) && cleaned.length === 6;
-        
-        console.log(`Forex validation: "${cleaned}" → ${isValid ? '✅' : '❌'}`);
+
+        // Only log when we find a valid pair
+        if (isValid) {
+            console.log(`✅ Valid forex pair found: "${text}" → "${cleaned}"`);
+        }
+
         return isValid;
     }
     

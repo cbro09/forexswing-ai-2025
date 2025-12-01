@@ -20,11 +20,12 @@
   
   "host_permissions": [
     "https://www.tradingview.com/*",
-    "https://tradingview.com/*", 
+    "https://tradingview.com/*",
     "https://www.forex.com/*",
     "https://www.oanda.com/*",
     "http://localhost:8082/*",
-    "http://localhost:8080/*"
+    "http://localhost:8080/*",
+    "<all_urls>"
   ],
   
   "background": {
