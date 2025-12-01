@@ -66,34 +66,34 @@ class CompanionAIAnalyzer:
         print("Initializing real AI models...")
         try:
             self.forex_bot = ForexBot()
-            print("✅ ForexBot (LSTM) loaded successfully")
+            print("[OK] ForexBot (LSTM) loaded successfully")
         except Exception as e:
-            print(f"❌ ForexBot failed to load: {e}")
+            print(f"[ERROR] ForexBot failed to load: {e}")
             self.forex_bot = None
-        
+
         try:
             self.gemini_analyzer = LiveGeminiAnalyzer()
-            print("✅ Gemini API analyzer loaded successfully")
+            print("[OK] Gemini API analyzer loaded successfully")
         except Exception as e:
-            print(f"❌ Gemini analyzer failed to load: {e}")
+            print(f"[ERROR] Gemini analyzer failed to load: {e}")
             self.gemini_analyzer = None
-        
+
         try:
             self.news_analyzer = NewsSentimentAnalyzer(alpha_vantage_key)
-            print("✅ News sentiment analyzer loaded successfully")
+            print("[OK] News sentiment analyzer loaded successfully")
         except Exception as e:
-            print(f"❌ News analyzer failed to load: {e}")
+            print(f"[ERROR] News analyzer failed to load: {e}")
             self.news_analyzer = None
-        
+
         # Supported currency pairs
         self.supported_pairs = [
-            'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 
+            'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF',
             'AUD/USD', 'USD/CAD', 'NZD/USD'
         ]
-        
-        print("🤖 CompanionAIAnalyzer initialized with REAL AI models")
-        print(f"📊 Supported pairs: {len(self.supported_pairs)}")
-        print(f"🔑 Alpha Vantage key: {'Configured' if alpha_vantage_key else 'Missing'}")
+
+        print("[AI] CompanionAIAnalyzer initialized with REAL AI models")
+        print(f"[INFO] Supported pairs: {len(self.supported_pairs)}")
+        print(f"[INFO] Alpha Vantage key: {'Configured' if alpha_vantage_key else 'Missing'}")
     
     def get_quick_analysis(self, pair: str) -> Dict:
         """
@@ -175,11 +175,11 @@ class CompanionAIAnalyzer:
                 # Return last 120 days for analysis
                 return df.tail(120)
             else:
-                print(f"⚠️ No market data file found for {pair} at {file_path}")
+                print(f"WARNING: No market data file found for {pair} at {file_path}")
                 return None
-                
+
         except Exception as e:
-            print(f"❌ Error loading market data for {pair}: {e}")
+            print(f"ERROR: Error loading market data for {pair}: {e}")
             return None
     
     def _get_real_news_sentiment(self, pair: str) -> Dict:
@@ -201,7 +201,7 @@ class CompanionAIAnalyzer:
             }
             
         except Exception as e:
-            print(f"❌ News sentiment error for {pair}: {e}")
+            print(f"ERROR: News sentiment error for {pair}: {e}")
             return {'success': False, 'sentiment': 0.0, 'confidence': 0.3, 'error': str(e)}
     
     def _get_real_lstm_analysis(self, pair: str, market_data: pd.DataFrame) -> Dict:
@@ -224,7 +224,7 @@ class CompanionAIAnalyzer:
             }
             
         except Exception as e:
-            print(f"❌ LSTM analysis error for {pair}: {e}")
+            print(f"ERROR: LSTM analysis error for {pair}: {e}")
             return {'success': False, 'action': 'HOLD', 'confidence': 0.3, 'error': str(e)}
     
     def _get_real_gemini_analysis(self, pair: str, market_data: pd.DataFrame) -> Dict:
@@ -257,7 +257,7 @@ class CompanionAIAnalyzer:
             }
             
         except Exception as e:
-            print(f"❌ Gemini analysis error for {pair}: {e}")
+            print(f"ERROR: Gemini analysis error for {pair}: {e}")
             return {'success': False, 'sentiment': 'neutral', 'confidence': 0.3, 'error': str(e)}
     
     def _combine_real_analyses(self, lstm: Dict, gemini: Dict, news: Dict) -> Dict:
@@ -332,9 +332,9 @@ class CompanionAIAnalyzer:
             'score': combined_score,
             'agreements': agreements,
             'components': {
-                'lstm': f"{lstm_action} {lstm_confidence:.0%}" + (" ✅" if lstm_success else " ❌"),
-                'gemini': f"{gemini_sentiment} {gemini_confidence:.0%}" + (" ✅" if gemini_success else " ❌"),
-                'news': f"{news_score:+.2f} ({news.get('articles_analyzed', 0)} articles)" + (" ✅" if news_success else " ❌")
+                'lstm': f"{lstm_action} {lstm_confidence:.0%}" + (" [OK]" if lstm_success else " [X]"),
+                'gemini': f"{gemini_sentiment} {gemini_confidence:.0%}" + (" [OK]" if gemini_success else " [X]"),
+                'news': f"{news_score:+.2f} ({news.get('articles_analyzed', 0)} articles)" + (" [OK]" if news_success else " [X]")
             },
             'risk_level': 'HIGH' if final_confidence < 0.4 else 'LOW' if final_confidence > 0.75 else 'MEDIUM',
             'data_quality': f"{sum([lstm_success, gemini_success, news_success])}/3 models active"
@@ -350,9 +350,9 @@ class CompanionAIAnalyzer:
             'agreements': 0,
             'risk_level': 'HIGH',
             'components': {
-                'lstm': 'UNAVAILABLE ❌',
-                'gemini': 'UNAVAILABLE ❌', 
-                'news': 'UNAVAILABLE ❌'
+                'lstm': 'UNAVAILABLE [X]',
+                'gemini': 'UNAVAILABLE [X]',
+                'news': 'UNAVAILABLE [X]'
             },
             'data_quality': '0/3 models active',
             'error': error,
@@ -488,8 +488,8 @@ class CompanionAPIHandler(BaseHTTPRequestHandler):
         </head>
         <body>
             <div class="container">
-                <h1>🤖 ForexSwing AI - Companion API</h1>
-                <p class="status">Status: Operational ✅</p>
+                <h1>ForexSwing AI - Companion API</h1>
+                <p class="status">Status: Operational [OK]</p>
                 
                 <h2>Available Endpoints:</h2>
                 
@@ -533,7 +533,7 @@ class CompanionAPIHandler(BaseHTTPRequestHandler):
 }
                 </div>
                 
-                <p>🚀 Ready for companion interface integration!</p>
+                <p>Ready for companion interface integration!</p>
             </div>
         </body>
         </html>
@@ -586,29 +586,29 @@ def create_handler_class(analyzer):
 
 def run_companion_api_server(port: int = 8080):
     """Run the companion API server"""
-    print("🤖 FOREXSWING AI - COMPANION API SERVICE")
+    print("[AI] FOREXSWING AI - COMPANION API SERVICE")
     print("=" * 60)
-    
+
     # Initialize analyzer
     analyzer = CompanionAIAnalyzer()
-    
+
     # Create HTTP server
     handler_class = create_handler_class(analyzer)
-    
+
     with HTTPServer(('localhost', port), handler_class) as server:
-        print(f"🚀 Companion API server starting on http://localhost:{port}")
-        print(f"📊 Supporting {len(analyzer.get_supported_pairs())} currency pairs")
-        print(f"🔗 Ready for companion interface integration")
-        print(f"📖 API documentation: http://localhost:{port}")
+        print(f"[SERVER] Companion API server starting on http://localhost:{port}")
+        print(f"[INFO] Supporting {len(analyzer.get_supported_pairs())} currency pairs")
+        print(f"[INFO] Ready for companion interface integration")
+        print(f"[INFO] API documentation: http://localhost:{port}")
         print("=" * 60)
         print("Press Ctrl+C to stop the server")
-        
+
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            print("\n🛑 Server stopped by user")
+            print("\n[STOP] Server stopped by user")
         except Exception as e:
-            print(f"❌ Server error: {e}")
+            print(f"[ERROR] Server error: {e}")
 
 if __name__ == "__main__":
     import sys

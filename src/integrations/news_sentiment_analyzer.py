@@ -60,15 +60,22 @@ class MultiSourceNewsAnalyzer:
             'fed_economic': 0.1
         }
         
-        # Currency pair mappings
+        # Currency pair mappings with economic terms
         self.currency_mappings = {
-            'EUR/USD': ['EUR', 'USD', 'EURO', 'DOLLAR', 'EURUSD'],
-            'GBP/USD': ['GBP', 'USD', 'POUND', 'STERLING', 'GBPUSD'],
-            'USD/JPY': ['USD', 'JPY', 'DOLLAR', 'YEN', 'USDJPY'],
-            'USD/CHF': ['USD', 'CHF', 'DOLLAR', 'FRANC', 'USDCHF'],
-            'AUD/USD': ['AUD', 'USD', 'AUSTRALIAN', 'DOLLAR', 'AUDUSD'],
-            'USD/CAD': ['USD', 'CAD', 'DOLLAR', 'CANADIAN', 'USDCAD'],
-            'NZD/USD': ['NZD', 'USD', 'ZEALAND', 'DOLLAR', 'NZDUSD']
+            'EUR/USD': ['EUR', 'USD', 'EURO', 'DOLLAR', 'EURUSD', 'ECB', 'European Central Bank',
+                        'Federal Reserve', 'Fed', 'eurozone', 'inflation', 'interest rate'],
+            'GBP/USD': ['GBP', 'USD', 'POUND', 'STERLING', 'GBPUSD', 'Bank of England', 'BoE',
+                        'Federal Reserve', 'Fed', 'Brexit', 'UK economy', 'inflation', 'interest rate'],
+            'USD/JPY': ['USD', 'JPY', 'DOLLAR', 'YEN', 'USDJPY', 'Bank of Japan', 'BoJ',
+                        'Federal Reserve', 'Fed', 'Japan economy', 'inflation', 'interest rate'],
+            'USD/CHF': ['USD', 'CHF', 'DOLLAR', 'FRANC', 'USDCHF', 'Swiss National Bank', 'SNB',
+                        'Federal Reserve', 'Fed', 'Swiss franc', 'safe haven', 'inflation', 'interest rate'],
+            'AUD/USD': ['AUD', 'USD', 'AUSTRALIAN', 'DOLLAR', 'AUDUSD', 'Reserve Bank of Australia', 'RBA',
+                        'Federal Reserve', 'Fed', 'commodity prices', 'China economy', 'inflation', 'interest rate'],
+            'USD/CAD': ['USD', 'CAD', 'DOLLAR', 'CANADIAN', 'USDCAD', 'Bank of Canada', 'BoC',
+                        'Federal Reserve', 'Fed', 'oil prices', 'crude', 'inflation', 'interest rate'],
+            'NZD/USD': ['NZD', 'USD', 'ZEALAND', 'DOLLAR', 'NZDUSD', 'Reserve Bank of New Zealand', 'RBNZ',
+                        'Federal Reserve', 'Fed', 'dairy prices', 'inflation', 'interest rate']
         }
         
         # Cache for API responses
@@ -171,13 +178,18 @@ class MultiSourceNewsAnalyzer:
                         # Check if article mentions our currencies
                         text_content = f"{entry.get('title', '')} {entry.get('summary', '')}"
                         
-                        # Simple relevance scoring
+                        # Enhanced relevance scoring - check for any economic keywords
                         relevance_score = 0.0
+                        text_lower = text_content.lower()
                         for currency in currencies:
-                            if currency.lower() in text_content.lower():
-                                relevance_score += 0.2
-                        
-                        if relevance_score > 0.1:  # Only include relevant articles
+                            if currency.lower() in text_lower:
+                                relevance_score += 0.15
+
+                        # Bonus for forex/economic terms
+                        if any(term in text_lower for term in ['forex', 'currency', 'exchange', 'central bank', 'fed', 'interest rate', 'inflation']):
+                            relevance_score += 0.2
+
+                        if relevance_score > 0.05:  # Lowered threshold to catch more relevant articles
                             # Simple sentiment scoring (you could enhance with NLP)
                             sentiment_score = self._simple_sentiment_analysis(text_content)
                             
@@ -299,17 +311,18 @@ class MultiSourceNewsAnalyzer:
         """Calculate how relevant the text is to the currency pair"""
         text_lower = text.lower()
         relevance = 0.0
-        
+
         for currency in currencies:
             if currency.lower() in text_lower:
-                relevance += 0.3
-        
-        # Bonus for forex-related terms
-        forex_terms = ['forex', 'currency', 'exchange rate', 'central bank', 'monetary policy']
+                relevance += 0.2
+
+        # Enhanced bonus for forex/economic terms
+        forex_terms = ['forex', 'currency', 'exchange rate', 'central bank', 'monetary policy',
+                       'interest rate', 'inflation', 'fed', 'ecb', 'dollar', 'euro']
         for term in forex_terms:
             if term in text_lower:
-                relevance += 0.1
-        
+                relevance += 0.15
+
         return min(1.0, relevance)
     
     def analyze_forex_sentiment(self, pair: str, hours_back: int = 24) -> ForexNewsSentiment:

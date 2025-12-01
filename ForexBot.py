@@ -238,10 +238,10 @@ class ForexBot:
                 # LSTM prediction
                 sequence = standard_features[-80:]
                 sequence_tensor = torch.FloatTensor(sequence).unsqueeze(0)
-                
+
                 with torch.no_grad():
                     output = self.model(sequence_tensor)
-                    
+
                     # Process with all optimizations
                     final_signal, final_confidence = self.process_optimized_signal(
                         output, enhanced_features, trend_signal, trend_strength
@@ -251,33 +251,27 @@ class ForexBot:
                 final_signal, final_confidence = self.get_trend_based_signal(
                     trend_signal, trend_strength, enhanced_features, pair
                 )
-                
-                processing_time = time.time() - start_time
-                
-                return {
-                    "pair": pair,
-                    "action": final_signal,
-                    "confidence": final_confidence,
-                    "processing_time": f"{processing_time:.3f}s",
-                    
-                    # Enhanced information
-                    "trend_signal": trend_signal,
-                    "trend_strength": f"{trend_strength:.1%}",
-                    "enhanced_features": len(enhanced_features),
-                    
-                    # System status
-                    "optimizations": "speed+balance+accuracy",
-                    "signal_method": "calibrated_thresholds",
-                    "feature_method": "enhanced_multi_signal",
-                    "version": "final_optimized",
-                    "timestamp": pd.Timestamp.now().isoformat()
-                }
-            
+
+            # Calculate processing time
+            processing_time = time.time() - start_time
+
+            # Return final recommendation
             return {
                 "pair": pair,
-                "action": "HOLD",
-                "confidence": 0.5,
-                "error": "Insufficient data",
+                "action": final_signal,
+                "confidence": final_confidence,
+                "processing_time": f"{processing_time:.3f}s",
+
+                # Enhanced information
+                "trend_signal": trend_signal,
+                "trend_strength": f"{trend_strength:.1%}",
+                "enhanced_features": len(enhanced_features),
+
+                # System status
+                "optimizations": "speed+balance+accuracy",
+                "signal_method": "calibrated_thresholds" if self.model_loaded else "trend_based",
+                "feature_method": "enhanced_multi_signal",
+                "version": "final_optimized",
                 "timestamp": pd.Timestamp.now().isoformat()
             }
             

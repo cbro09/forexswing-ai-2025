@@ -17,6 +17,12 @@ import numpy as np
 from functools import lru_cache
 import os
 
+# Import torch for model loading in FastForexStrategy
+try:
+    import torch
+except ImportError:
+    torch = None  # Will gracefully handle missing torch
+
 class OptimizedGeminiInterpreter:
     """
     High-performance Gemini CLI integration with optimization features:
@@ -170,8 +176,10 @@ Trend: {context['trend']}
 
 Respond with JSON: {{"sentiment": "bullish/bearish/neutral", "confidence": 0-100, "key_factor": "brief reason"}}"""
             
+            # Generate cache key for checking if response was cached
+            cache_key = self._generate_cache_key(prompt, json.dumps(context))
             response = self._call_gemini_cached(prompt, json.dumps(context))
-            
+
             if response:
                 try:
                     interpretation = json.loads(response)
@@ -301,6 +309,8 @@ class FastForexStrategy:
         # Load model
         if model_path and os.path.exists(model_path):
             try:
+                if torch is None:
+                    raise ImportError("PyTorch is not installed. Please install torch to use model loading.")
                 checkpoint = torch.load(model_path, map_location='cpu')
                 self.model.load_state_dict(checkpoint, strict=False)
                 self.model.eval()

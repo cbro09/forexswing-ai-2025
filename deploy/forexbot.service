@@ -1,0 +1,30 @@
+# Systemd service file for ForexSwing AI Bot
+# Install to: /etc/systemd/system/forexbot.service
+# Enable with: sudo systemctl enable forexbot
+# Start with: sudo systemctl start forexbot
+
+[Unit]
+Description=ForexSwing AI 2025 Trading Bot
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=forex
+WorkingDirectory=/opt/forexswing-ai-2025
+ExecStart=/usr/bin/docker-compose up
+ExecStop=/usr/bin/docker-compose down
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

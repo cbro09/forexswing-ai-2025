@@ -35,14 +35,18 @@ class LiveGeminiAnalyzer:
         """Initialize Gemini API connection"""
         try:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
+            self.model = genai.GenerativeModel('gemini-1.5-flash')
             
-            # Skip test connection for faster startup - will test on first actual use
-            self.available = True
-            print("Live Gemini API configured (will test on first request)")
-
+            # Test connection
+            test_response = self.model.generate_content("Test connection")
+            if test_response:
+                self.available = True
+                print(f"✅ Live Gemini API connected successfully")
+            else:
+                raise Exception("No response from Gemini")
+                
         except Exception as e:
-            print(f"WARNING: Gemini API initialization failed: {e}")
+            print(f"⚠️ Gemini API initialization failed: {e}")
             self.available = False
     
     def _generate_cache_key(self, prompt: str) -> str:
@@ -64,7 +68,7 @@ class LiveGeminiAnalyzer:
         
         if time_since_last < self.min_call_interval:
             sleep_time = self.min_call_interval - time_since_last
-            print(f"Rate limiting: waiting {sleep_time:.1f}s")
+            print(f"🕒 Rate limiting: waiting {sleep_time:.1f}s")
             time.sleep(sleep_time)
         
         self.last_call_time = time.time()
@@ -120,7 +124,7 @@ class LiveGeminiAnalyzer:
                 raise Exception("Empty response from Gemini")
                 
         except Exception as e:
-            print(f"ERROR: Gemini API call failed: {e}")
+            print(f"❌ Gemini API call failed: {e}")
             return {
                 'sentiment': 'neutral',
                 'confidence': 0.5,
@@ -201,7 +205,7 @@ RESPOND IN JSON FORMAT:
                 raise ValueError("No JSON found in response")
                 
         except Exception as e:
-            print(f"WARNING: Could not parse Gemini response: {e}")
+            print(f"⚠️ Could not parse Gemini response: {e}")
             print(f"Raw response: {response_text[:200]}...")
             
             # Fallback parsing

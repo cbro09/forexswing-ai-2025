@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Main Trading Bot Service
+  forexbot:
+    build: .
+    container_name: forexswing-ai-bot
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY:-OXGW647WZO8XTKA1}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-your_gemini_api_key}
+      - NEWS_API_KEY=${NEWS_API_KEY:-your_news_api_key}
+      - TZ=UTC
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./models:/app/models
+      - ./config:/app/config
+    networks:
+      - trading-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/api/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Data Collection Service (runs periodically)
+  data-collector:
+    build: .
+    container_name: forexswing-data-collector
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY:-OXGW647WZO8XTKA1}
+      - TZ=UTC
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - trading-network
+    command: python src/data/market_data_collector.py
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Model Training Service (optional, can be run manually)
+  model-trainer:
+    build: .
+    container_name: forexswing-trainer
+    restart: "no"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-}
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+    networks:
+      - trading-network
+    command: python src/training/enhanced_model_trainer.py
+    profiles:
+      - training
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  data:
+  logs:
+  models:
