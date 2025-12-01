@@ -10,7 +10,7 @@ services:
       - "8082:8082"
     environment:
       - PYTHONUNBUFFERED=1
-      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY:-OXGW647WZO8XTKA1}
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-your_gemini_api_key}
       - NEWS_API_KEY=${NEWS_API_KEY:-your_news_api_key}
       - TZ=UTC
@@ -40,7 +40,7 @@ services:
     restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
-      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY:-OXGW647WZO8XTKA1}
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY}
       - TZ=UTC
     volumes:
       - ./data:/app/data
@@ -48,6 +48,53 @@ services:
     networks:
       - trading-network
     command: python src/data/market_data_collector.py
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Performance Monitoring Service (tracks signal accuracy)
+  performance-tracker:
+    build: .
+    container_name: forexswing-performance-tracker
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ALPHA_VANTAGE_KEY=${ALPHA_VANTAGE_KEY}
+      - TZ=UTC
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - trading-network
+    command: python src/monitoring/performance_tracker.py
+    depends_on:
+      - forexbot
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Auto-Retraining Service (triggers retraining when needed)
+  auto-retrainer:
+    build: .
+    container_name: forexswing-auto-retrainer
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TZ=UTC
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - trading-network
+    command: python src/training/auto_retrainer.py
+    depends_on:
+      - forexbot
+      - performance-tracker
     logging:
       driver: "json-file"
       options:
